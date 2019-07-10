@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -352,11 +352,8 @@
 #define E4_AUTO_FAN_PIN -1
 #define E5_AUTO_FAN_PIN -1
 #define CHAMBER_AUTO_FAN_PIN -1
-
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
-#define CHAMBER_AUTO_FAN_TEMPERATURE 30
-#define CHAMBER_AUTO_FAN_SPEED 255
 
 /**
  * Part-Cooling Fan Multiplexer
@@ -518,7 +515,7 @@
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-//#define QUICK_HOME                     // If homing includes X and Y, do a diagonal move initially
+#define QUICK_HOME                       // If homing includes X and Y, do a diagonal move initially
 //#define HOMING_BACKOFF_MM { 2, 2, 2 }  // (mm) Move away from the endstops after homing
 
 // When G28 is called, this option will make Y home before X
@@ -649,7 +646,7 @@
 // @section lcd
 
 #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 2*60 } // Feedrates for manual moves along X, Y, Z, E from panel
   #if ENABLED(ULTIPANEL)
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
     #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
@@ -850,10 +847,10 @@
 #endif
 
 // Include a page of printer information in the LCD Main Menu
-//#define LCD_INFO_MENU
+#define LCD_INFO_MENU
 
 // Scroll a longer status message into view
-//#define STATUS_MESSAGE_SCROLLING
+#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
@@ -976,7 +973,7 @@
   //#define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
-  //#define SCROLL_LONG_FILENAMES
+  #define SCROLL_LONG_FILENAMES
 
   // Leave the heaters on after Stop Print (not recommended!)
   //#define SD_ABORT_NO_COOLDOWN
@@ -1037,26 +1034,18 @@
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 
+  // LPC-based boards have on-board SD Card options. Override here or defaults apply.
   #ifdef TARGET_LPC1768
-    /**
-     * Set this option to one of the following (or the board's defaults apply):
-     *
-     *           LCD - Use the SD drive in the external LCD controller.
-     *       ONBOARD - Use the SD drive on the control board. (No SD_DETECT_PIN. M21 to init.)
-     *  CUSTOM_CABLE - Use a custom cable to access the SD (as defined in a pins file).
-     *
-     * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
-     */
-    //#define SDCARD_CONNECTION LCD
+    //#define LPC_SD_LCD          // Use the SD drive in the external LCD controller.
+    //#define LPC_SD_ONBOARD      // Use the SD drive on the control board. (No SD_DETECT_PIN. M21 to init.)
+    //#define LPC_SD_CUSTOM_CABLE // Use a custom cable to access the SD (as defined in a pins file).
+    //#define USB_SD_DISABLED     // Disable SD Card access over USB (for security).
+    #if ENABLED(LPC_SD_ONBOARD)
+      //#define USB_SD_ONBOARD    // Provide the onboard SD card to the host as a USB mass storage device.
+    #endif
   #endif
 
 #endif // SDSUPPORT
-
-/**
- * By default an onboard SD card reader may be shared as a USB mass-
- * storage device. This option hides the SD card from the host PC.
- */
-//#define NO_SD_HOST_DRIVE   // Disable SD Card access over USB (for security).
 
 /**
  * Additional options for Graphical Displays
@@ -1163,14 +1152,14 @@
  *
  * Warning: Does not respect endstops!
  */
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_WITHOUT_HOMING
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
   #define BABYSTEP_MULTIPLICATOR  1         // Babysteps are very small. Increase for faster motion.
 
-  //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
@@ -1478,28 +1467,28 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-//#define ADVANCED_PAUSE_FEATURE
+#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
                                                   // This short retract is done immediately, before parking the nozzle.
-  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     10  // (mm/s) Unload filament feedrate. This can be pretty fast.
+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     20  // (mm/s) Unload filament feedrate. This can be pretty fast.
   #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_UNLOAD_LENGTH      100  // (mm) The length of filament for a complete unload.
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH      105  // (mm) The length of filament for a complete unload.
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
                                                   //   Set to 0 for manual unloading.
   #define FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE   6  // (mm/s) Slow move when starting load.
-  #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH     0  // (mm) Slow length, to allow time to insert material.
+  #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH    20  // (mm) Slow length, to allow time to insert material.
                                                   // 0 to disable start loading and skip to fast load only
-  #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE   6  // (mm/s) Load filament feedrate. This can be pretty fast.
+  #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE  20  // (mm/s) Load filament feedrate. This can be pretty fast.
   #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH     0  // (mm) Load length of filament, from extruder gear to nozzle.
+  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   100  // (mm) Load length of filament, from extruder gear to nozzle.
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
   //#define ADVANCED_PAUSE_CONTINUOUS_PURGE       // Purge continuously up to the purge length until interrupted.
   #define ADVANCED_PAUSE_PURGE_FEEDRATE        3  // (mm/s) Extrude feedrate (after loading). Should be slower than load feedrate.
-  #define ADVANCED_PAUSE_PURGE_LENGTH         50  // (mm) Length to extrude after loading.
+  #define ADVANCED_PAUSE_PURGE_LENGTH         10  // (mm) Length to extrude after loading.
                                                   //   Set to 0 for manual extrusion.
                                                   //   Filament can be extruded repeatedly from the Filament Change menu
                                                   //   until extrusion is consistent, and to purge old filament.
@@ -1509,16 +1498,16 @@
                                                   // Filament Unload does a Retract, Delay, and Purge first:
   #define FILAMENT_UNLOAD_RETRACT_LENGTH      13  // (mm) Unload initial retract length.
   #define FILAMENT_UNLOAD_DELAY             5000  // (ms) Delay for the filament to cool after retract.
-  #define FILAMENT_UNLOAD_PURGE_LENGTH         8  // (mm) An unretract is done, then this length is purged.
+  #define FILAMENT_UNLOAD_PURGE_LENGTH         3  // (mm) An unretract is done, then this length is purged.
 
-  #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
+  #define PAUSE_PARK_NOZZLE_TIMEOUT           60  // (seconds) Time limit before the nozzle is turned off for safety.
   #define FILAMENT_CHANGE_ALERT_BEEPS         10  // Number of alert beeps to play when a response is needed.
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
   //#define PARK_HEAD_ON_PAUSE                    // Park the nozzle during pause and filament change.
   //#define HOME_BEFORE_FILAMENT_CHANGE           // Ensure homing has been completed prior to parking for filament change
 
-  //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
+  #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
@@ -1732,6 +1721,7 @@
   //#define E5_CS_PIN         -1
 
   /**
+   * Use software SPI for TMC2130.
    * Software option for SPI driven drivers (TMC2130, TMC2160, TMC2660, TMC5130 and TMC5160).
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
@@ -1773,13 +1763,13 @@
   //#define SOFTWARE_DRIVER_ENABLE
 
   /**
-   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
+   * TMC2130, TMC2160, TMC2208, TMC5130 and TMC5160 only
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
   #define STEALTHCHOP_XY
   #define STEALTHCHOP_Z
-  #define STEALTHCHOP_E
+  //#define STEALTHCHOP_E
 
   /**
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
@@ -1795,11 +1785,11 @@
    * Define you own with
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
    */
-  #define CHOPPER_TIMING CHOPPER_DEFAULT_12V
+  #define CHOPPER_TIMING CHOPPER_DEFAULT_24V
 
   /**
    * Monitor Trinamic drivers for error conditions,
-   * like overtemperature and short to ground.
+   * like overtemperature and short to ground. TMC2208 requires hardware serial.
    * In the case of overtemperature Marlin can decrease the driver current until error condition clears.
    * Other detected conditions can be used to stop the current print.
    * Relevant g-codes:
@@ -1808,7 +1798,7 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  //#define MONITOR_DRIVER_STATUS
+  #define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
@@ -1817,7 +1807,7 @@
   #endif
 
   /**
-   * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
+   * TMC2130, TMC2160, TMC2208, TMC5130 and TMC5160 only
    * The driver will switch to spreadCycle when stepper speed is over HYBRID_THRESHOLD.
    * This mode allows for faster movements at the expense of higher noise levels.
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
@@ -1840,7 +1830,7 @@
   #define E5_HYBRID_THRESHOLD     30
 
   /**
-   * TMC2130, TMC2160, TMC2209, TMC2660, TMC5130, and TMC5160 only
+   * TMC2130, TMC2160, TMC2660, TMC5130, and TMC5160 only
    * Use StallGuard2 to sense an obstacle and trigger an endstop.
    * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
@@ -1852,7 +1842,7 @@
    * It is advised to set X/Y/Z_HOME_BUMP_MM to 0.
    * M914 X/Y/Z to live tune the setting
    */
-  //#define SENSORLESS_HOMING // StallGuard capable drivers only
+  //#define SENSORLESS_HOMING // TMC2130 only
 
   /**
    * Use StallGuard2 to probe the bed with the nozzle.
@@ -1860,10 +1850,9 @@
    * CAUTION: This could cause damage to machines that use a lead screw or threaded rod
    *          to move the Z axis. Take extreme care when attempting to enable this feature.
    */
-  //#define SENSORLESS_PROBING // StallGuard capable drivers only
+  //#define SENSORLESS_PROBING // TMC2130 only
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
-    // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  8
     #define Y_STALL_SENSITIVITY  8
     //#define Z_STALL_SENSITIVITY  8
@@ -1879,7 +1868,7 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  //#define TMC_DEBUG
+  #define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
@@ -2121,38 +2110,36 @@
  *
  * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-//#define SPINDLE_FEATURE
-//#define LASER_FEATURE
-#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
-  #define SPINDLE_LASER_ACTIVE_HIGH     false  // Set to "true" if the on/off function is active HIGH
-  #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
+//#define SPINDLE_LASER_ENABLE
+#if ENABLED(SPINDLE_LASER_ENABLE)
+
+  #define SPINDLE_LASER_ENABLE_INVERT   false  // Set to "true" if the on/off function is reversed
+  #define SPINDLE_LASER_PWM             true   // Set to true if your controller supports setting the speed/power
   #define SPINDLE_LASER_PWM_INVERT      true   // Set to "true" if the speed/power goes up when you want it to go slower
   #define SPINDLE_LASER_POWERUP_DELAY   5000   // (ms) Delay to allow the spindle/laser to come up to speed/power
   #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // (ms) Delay to allow the spindle to stop
+  #define SPINDLE_DIR_CHANGE            true   // Set to true if your spindle controller supports changing spindle direction
+  #define SPINDLE_INVERT_DIR            false
+  #define SPINDLE_STOP_ON_DIR_CHANGE    true   // Set to true if Marlin should stop the spindle before changing rotation direction
 
-  #if ENABLED(SPINDLE_FEATURE)
-    //#define SPINDLE_CHANGE_DIR               // Enable if your spindle controller can change spindle direction
-    #define SPINDLE_CHANGE_DIR_STOP            // Enable if the spindle should stop before changing spin direction
-    #define SPINDLE_INVERT_DIR          false  // Set to "true" if the spin direction is reversed
+  /**
+   *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
+   *
+   *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE + SPEED_POWER_INTERCEPT
+   *    where PWM duty cycle varies from 0 to 255
+   *
+   *  set the following for your controller (ALL MUST BE SET)
+   */
 
-    /**
-     *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
-     *
-     *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE + SPEED_POWER_INTERCEPT
-     *    where PWM duty cycle varies from 0 to 255
-     *
-     *  set the following for your controller (ALL MUST BE SET)
-     */
-    #define SPEED_POWER_SLOPE    118.4
-    #define SPEED_POWER_INTERCEPT  0
-    #define SPEED_POWER_MIN     5000
-    #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
-  #else
-    #define SPEED_POWER_SLOPE      0.3922
-    #define SPEED_POWER_INTERCEPT  0
-    #define SPEED_POWER_MIN       10
-    #define SPEED_POWER_MAX      100    // 0-100%
-  #endif
+  #define SPEED_POWER_SLOPE    118.4
+  #define SPEED_POWER_INTERCEPT  0
+  #define SPEED_POWER_MIN     5000
+  #define SPEED_POWER_MAX    30000    // SuperPID router controller 0 - 30,000 RPM
+
+  //#define SPEED_POWER_SLOPE      0.3922
+  //#define SPEED_POWER_INTERCEPT  0
+  //#define SPEED_POWER_MIN       10
+  //#define SPEED_POWER_MAX      100      // 0-100%
 #endif
 
 /**
